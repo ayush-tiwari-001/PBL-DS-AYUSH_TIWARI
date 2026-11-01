@@ -1,0 +1,12 @@
+{
+  "name": "stackbrowser",
+  "version": "1.0.0",
+  "description": "A desktop-style web browser whose Back/Forward history is a C++ two-stacks-in-one-array.",
+  "private": true,
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node test/run-tests.js"
+  },
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SATBROWSER</title>
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234F6BF0'/%3E%3Crect x='7' y='9' width='5' height='14' rx='1.5' fill='white'/%3E%3Crect x='14' y='13' width='5' height='10' rx='1.5' fill='white' opacity='.7'/%3E%3Crect x='21' y='9' width='5' height='14' rx='1.5' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<canvas id="particleCanvas" aria-hidden="true"></canvas>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#3B82F6"/>
+      </linearGradient>
+    </defs>
+    <symbol id="logo" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="url(#logoGrad)"/>
+      <rect x="7" y="9" width="5" height="14" rx="1.5" fill="#fff"/>
+      <rect x="14" y="13" width="5" height="10" rx="1.5" fill="#fff" opacity=".7"/>
+      <rect x="21" y="9" width="5" height="14" rx="1.5" fill="#fff"/>
+    </symbol>
+  </svg>
+
+  <div class="window">
+    <header class="titlebar">
+      <div class="brand"><svg class="brand-mark" aria-hidden="true"><use href="#logo"/></svg><span>SATBROWSER</span></div>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Open tabs"></div>
+      <button class="icon-btn" id="newTab" type="button" title="New tab" aria-label="New tab" data-icon="plus"></button>
+    </header>
+
+    <div class="toolbar">
+      <div class="nav-group" role="group" aria-label="Navigation">
+        <button class="icon-btn" id="backBtn" type="button" title="Back (Alt+Left)" aria-label="Back" data-icon="back"></button>
+        <button class="icon-btn" id="forwardBtn" type="button" title="Forward (Alt+Right)" aria-label="Forward" data-icon="forward"></button>
+        <button class="icon-btn" id="reloadBtn" type="button" title="Reload" aria-label="Reload" data-icon="reload"></button>
+        <button class="icon-btn" id="homeBtn" type="button" title="Home (Alt+Home)" aria-label="Home" data-icon="home"></button>
+      </div>
+
+      <form class="omnibox" id="omnibox" autocomplete="off">
+        <span class="omni-icon" id="secIcon" aria-hidden="true"></span>
+        <input id="address" type="text" spellcheck="false" placeholder="Search or enter address" aria-label="Address bar">
+        <button class="icon-btn small" id="bookmarkBtn" type="button" title="Bookmark this page" aria-label="Bookmark this page" aria-pressed="false"></button>
+      </form>
+
+      <div class="tool-group">
+        <button class="icon-btn" id="devToggle" type="button" title="History inspector" aria-label="History inspector" aria-expanded="false" aria-controls="dsa" data-icon="code"></button>
+        <div class="menu-wrap">
+          <button class="icon-btn" id="menuBtn" type="button" title="Settings" aria-label="Settings menu" aria-haspopup="menu" aria-expanded="false" data-icon="menu"></button>
+          <div class="menu" id="menu" role="menu" hidden>
+            <button class="menu-item" role="menuitemcheckbox" id="miDev" aria-checked="false"><span class="mi-label">History inspector</span><span class="mi-state"></span></button>
+            <button class="menu-item" role="menuitemcheckbox" id="miBookmarks" aria-checked="true"><span class="mi-label">Bookmarks bar</span><span class="mi-state"></span></button>
+            <div class="menu-sep" role="separator"></div>
+            <button class="menu-item" role="menuitem" id="miReset"><span class="mi-label">Clear this tab's Back and Forward history</span></button>
+            <button class="menu-item" role="menuitem" id="miClearBookmarks"><span class="mi-label">Remove all bookmarks</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="progress" id="progress" aria-hidden="true"><i></i></div>
+
+    <nav class="bookmarks" id="bookmarksBar" aria-label="Bookmarks" hidden></nav>
+
+    
+<main class="viewport" id="viewport">
+
+  <!-- Left: Back Stack -->
+  <aside class="live-stack live-stack-back">
+    <div class="live-stack-heading">
+      BACK STACK
+      <b id="backStackCount">0</b>
+    </div>
+    <div class="live-stack-items" id="backStackItems"></div>
+  </aside>
+
+  <!-- Website content stays in the center -->
+  <!-- Your app.js will continue rendering pages here -->
+
+  <!-- Right: Forward Stack -->
+  <aside class="live-stack live-stack-forward">
+    <div class="live-stack-heading">
+      FORWARD STACK
+      <b id="forwardStackCount">0</b>
+    </div>
+    <div class="live-stack-items" id="forwardStackItems"></div>
+  </aside>
+
+</main>
+
+
+    <section class="dsa" id="dsa" aria-label="History inspector" aria-hidden="true" inert>
+      <div class="dsa-inner" id="dsaRoot"></div>
+    </section>
+
+    <footer class="statusbar">
+      <div class="status-msg" id="statusMsg" role="status" aria-live="polite"></div>
+      
+<div class="status-right">
+  <span class="status-counts" id="statusCounts"></span>
+
+  <button class="status-btn" id="stackVisibilityBtn"
+    type="button" aria-pressed="true">
+    Hide stacks
+  </button>
+
+  <button class="status-btn" id="statusDev"
+    type="button" aria-expanded="false" aria-controls="dsa">
+    History inspector
+  </button>
+</div>
+
+    </footer>
+  </div>
+<script src="js/particles.js"></script>
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
